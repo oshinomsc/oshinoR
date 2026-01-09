@@ -6,7 +6,6 @@
 
   <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
   <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
-  <script src="https://webr.r-wasm.org/latest/webr.mjs" type="module"></script>
 
   <style>
     body {
@@ -162,7 +161,7 @@
 
     <div class="input-area">
       <label for="rcode">Rコード入力</label>
-      <textarea id="rcode" placeholder="例：&#10;plot(1:10)"></textarea>
+      <textarea id="rcode" placeholder="例：&#10;1+1&#10;mean(1:10)"></textarea>
       <button id="runBtn">Rコードを実行</button>
     </div>
 
@@ -177,6 +176,7 @@
     </div>
   </div>
 
+  <!-- ここから下だけ機能修正（見た目は一切変更なし） -->
   <script type="module">
     import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
 
@@ -187,14 +187,13 @@
 
     resultArea.textContent = "WebR を読み込み中です…";
 
+    // WebR 初期化
     await webR.init();
-    webR.setCanvas(canvas);
 
     resultArea.textContent = "ここに結果が表示されます";
 
     runBtn.addEventListener("click", async () => {
       const code = document.getElementById("rcode").value.trim();
-
       if (!code) {
         resultArea.textContent = "Rコードが入力されていません。";
         return;
@@ -203,14 +202,22 @@
       resultArea.textContent = "実行中です…";
 
       try {
+        // Rコードを実行
         const rResult = await webR.evalR(code);
 
+        // まずコンソール出力を拾う
+        const consoleText = await rResult.toConsole();
+        if (consoleText && consoleText.trim() !== "") {
+          resultArea.textContent = consoleText;
+          return;
+        }
+
+        // コンソール出力がなければ JS 形式に変換を試みる
         const jsResult = await rResult.toJs();
         if (jsResult && Array.isArray(jsResult.values) && jsResult.values.length > 0) {
           resultArea.textContent = jsResult.values.join(", ");
         } else {
-          const consoleText = await rResult.toConsole();
-          resultArea.textContent = consoleText || "Rからの出力はありませんでした。";
+          resultArea.textContent = "Rからの出力はありませんでした。";
         }
       } catch (error) {
         resultArea.textContent = "エラーが発生しました: " + error.message;
