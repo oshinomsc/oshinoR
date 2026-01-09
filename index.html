@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>おしのR</title>
-
-  <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
   <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
-  <script src="https://webr.r-wasm.org/latest/webr.mjs" type="module"></script>
-
   <style>
     body {
       margin: 0;
@@ -168,7 +164,7 @@
 
     <div class="result-area">
       <h2>結果</h2>
-      <div id="result">ここに結果が表示されます</div>
+      <div id="result">WebR を読み込み中です…</div>
     </div>
 
     <div class="plot-area">
@@ -186,11 +182,12 @@
     const canvas = document.getElementById("webr-canvas");
 
     resultArea.textContent = "WebR を読み込み中です…";
+
     await webR.init();
-    webR.setCanvas(canvas); // ← これが描画の鍵です
+    webR.setCanvas(canvas);
     resultArea.textContent = "ここに結果が表示されます";
 
-    runBtn.addEventListener("click", async () => {
+    runBtn.addEventListener("click", async () => {https://github.com/oshinomsc/oshinoR/blob/main/index.html
       const code = document.getElementById("rcode").value.trim();
       if (!code) {
         resultArea.textContent = "Rコードが入力されていません。";
@@ -206,4 +203,12 @@
         if (jsResult && Array.isArray(jsResult.values) && jsResult.values.length > 0) {
           resultArea.textContent = jsResult.values.join(", ");
         } else {
-          resultArea.textContent =
+          resultArea.textContent = "（Rからの返り値はありません）";
+        }
+      } catch (err) {
+        resultArea.textContent = "エラー: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
