@@ -8,14 +8,12 @@
       font-family: "Rounded Mplus 1c", "Hiragino Maru Gothic ProN", sans-serif;
       background: #faf7fb;
       padding: 20px;
-      line-height: 1.6;
     }
 
     h1 {
       font-size: 2rem;
       text-align: center;
       margin-bottom: 20px;
-      font-weight: bold;
     }
 
     textarea {
@@ -25,7 +23,6 @@
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      resize: vertical;
     }
 
     button {
@@ -52,25 +49,9 @@
     }
   </style>
 
-  <!-- WebR CDN -->
-  <script src="https://webr.r-wasm.org/latest/webr.mjs" type="module"></script>
-</head>
-
-<body>
-  <h1>📊 おしのR</h1>
-
-  <p>Rコードを入力して「実行」を押してください。</p>
-
-  <textarea id="rcode">1:10</textarea>
-  <br>
-  <button id="runBtn">実行</button>
-
-  <div id="output">WebR を読み込み中です…</div>
-
   <script type="module">
     import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
 
-    // WebR 初期化
     const webR = new WebR();
     await webR.init();
 
@@ -80,7 +61,6 @@
 
     output.textContent = "WebR の準備ができました。";
 
-    // Rコード実行
     runBtn.onclick = async () => {
       output.textContent = "実行中…";
 
@@ -93,5 +73,14 @@
       }
     };
   </script>
+</head>
+
+<body>
+  <h1>📊 おしのR</h1>
+  <p>Rコードを入力して「実行」を押してください。</p>
+  <textarea id="rcode">1:10</textarea>
+  <br>
+  <button id="runBtn">実行</button>
+  <div id="output">WebR を読み込み中です…</div>
 </body>
 </html>
