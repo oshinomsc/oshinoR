@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>おしのR</title>
+
+  <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
+  <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
+  <script src="https://webr.r-wasm.org/latest/webr.mjs" type="module"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 10px;
+      color: #004f4f;
+      font-family: 'M PLUS Rounded 1c', system-ui, sans-serif;
+      background-color: #f0ffff;
+      background-image:
+        linear-gradient(45deg, rgba(255,255,255,0.7) 25%, rgba(255,255,255,0) 25%, rgba(255,255,255,0) 75%, rgba(255,255,255,0.7) 75%),
+        linear-gradient(45deg, rgba(255,255,255,0.7) 25%, rgba(255,255,255,0) 25%, rgba(255,255,255,0) 75%, rgba(255,255,255,0.7) 75%);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      display: flex;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .app-wrapper {
+      background-color: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 0 4px #c8f2f2, 0 8px 20px rgba(0,80,80,0.2);
+      max-width: 720px;
+      width: 100%;
+      padding: 24px 20px 28px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .app-wrapper::before,
+    .app-wrapper::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      height: 8px;
+      background-image: radial-gradient(circle, #ffffff 2px, rgba(0,0,0,0) 2px);
+      background-size: 12px 8px;
+      background-repeat: repeat-x;
+      opacity: 0.8;
+    }
+    .app-wrapper::before { top: 10px; }
+    .app-wrapper::after { bottom: 10px; }
+
+    h1 {
+      text-align: center;
+      margin: 10px 0 24px;
+      color: #008b8b;
+    }
+
+    .title-ja {
+      font-family: 'Mochiy Pop One', 'M PLUS Rounded 1c', sans-serif;
+      font-size: 2.1rem;
+      margin-right: 4px;
+    }
+
+    .title-en {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3.4rem;
+      letter-spacing: 1px;
+    }
+
+    .input-area {
+      background-color: #e0f7f7;
+      padding: 1em;
+      border-radius: 14px;
+      margin-bottom: 1em;
+      border: 2px solid #b3ecec;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      border: 2px solid #00bfbf;
+      border-radius: 10px;
+      padding: 0.5em;
+      font-size: 0.95em;
+      font-family: 'Courier New', monospace;
+      background-color: #ffffff;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #00bfbf;
+      color: white;
+      border: none;
+      padding: 0.6em 1.4em;
+      border-radius: 999px;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: background-color 0.25s, transform 0.1s, box-shadow 0.1s;
+      box-shadow: 0 3px 0 #008080;
+    }
+
+    button:hover {
+      background-color: #00a0a0;
+      transform: translateY(1px);
+      box-shadow: 0 2px 0 #006666;
+    }
+
+    .result-area {
+      background-color: #ffffff;
+      padding: 1em;
+      border-radius: 14px;
+      border: 2px solid #b3ecec;
+      margin-bottom: 1.4em;
+    }
+
+    .result-area h2 {
+      margin: 0 0 0.4em;
+      font-size: 1rem;
+      color: #007f7f;
+    }
+
+    #result {
+      white-space: pre-wrap;
+      margin-top: 0.3em;
+      color: #003f3f;
+      font-size: 0.95rem;
+      min-height: 1.4em;
+    }
+
+    .plot-area {
+      margin-top: 1.4em;
+      background-color: #ffffff;
+      border-radius: 18px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 4px #dff7f7, 0 6px 16px rgba(0,80,80,0.15);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .plot-area h2 {
+      margin: 0 0 0.6em;
+      font-size: 1.1rem;
+      color: #007f7f;
+      font-family: 'Mochiy Pop One', sans-serif;
+    }
+
+    canvas {
+      max-width: 100%;
+      border-radius: 10px;
+      border: 2px solid #c8f2f2;
+      background: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-wrapper">
+    <h1><span class="title-ja">おしの</span><span class="title-en">R</span></h1>
+
+    <div class="input-area">
+      <label for="rcode">Rコード入力</label>
+      <textarea id="rcode" placeholder="例：&#10;webr::canvas()&#10;plot(1:10)&#10;dev.off()"></textarea>
+      <button id="runBtn">Rコードを実行</button>
+    </div>
+
+    <div class="result-area">
+      <h2>結果</h2>
+      <div id="result">ここに結果が表示されます</div>
+    </div>
+
+    <div class="plot-area">
+      <h2>📊 おしのR グラフ</h2>
+      <canvas id="webr-canvas" width="1008" height="1008"></canvas>
+    </div>
+  </div>
+
+  <script type="module">
+    import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
+
+    const webR = new WebR();
+    const resultArea = document.getElementById("result");
+    const runBtn = document.getElementById("runBtn");
+    const canvas = document.getElementById("webr-canvas");
+
+    resultArea.textContent = "WebR を読み込み中です…";
+    await webR.init();
+    webR.setCanvas(canvas); // ← これが描画の鍵です
+    resultArea.textContent = "ここに結果が表示されます";
+
+    runBtn.addEventListener("click", async () => {
+      const code = document.getElementById("rcode").value.trim();
+      if (!code) {
+        resultArea.textContent = "Rコードが入力されていません。";
+        return;
+      }
+
+      resultArea.textContent = "実行中です…";
+
+      try {
+        const rResult = await webR.evalR(code);
+        const jsResult = await rResult.toJs();
+
+        if (jsResult && Array.isArray(jsResult.values) && jsResult.values.length > 0) {
+          resultArea.textContent = jsResult.values.join(", ");
+        } else {
+          resultArea.textContent =
