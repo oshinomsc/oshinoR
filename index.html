@@ -1,323 +1,221 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>おしのR</title>
 
-  <!-- ふんわり水色クラロリ系スタイル -->
+  <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
+  <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
+  <script src="https://webr.r-wasm.org/latest/webr.mjs" type="module"></script>
+
   <style>
-    /* 背景：水色ギンガム風 */
     body {
       margin: 0;
-      padding: 30px 10px;
-      font-family: "Rounded Mplus 1c", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+      padding: 40px 10px;
+      color: #004f4f;
+      font-family: 'M PLUS Rounded 1c', system-ui, sans-serif;
+      background-color: #f0ffff;
       background-image:
-        linear-gradient(90deg, rgba(173, 216, 230, 0.4) 50%, transparent 50%),
-        linear-gradient(rgba(173, 216, 230, 0.4) 50%, transparent 50%);
+        linear-gradient(45deg, rgba(255,255,255,0.7) 25%, rgba(255,255,255,0) 25%, rgba(255,255,255,0) 75%, rgba(255,255,255,0.7) 75%),
+        linear-gradient(45deg, rgba(255,255,255,0.7) 25%, rgba(255,255,255,0) 25%, rgba(255,255,255,0) 75%, rgba(255,255,255,0.7) 75%);
       background-size: 40px 40px;
-      background-color: #f5fbff;
-      color: #26566b;
+      background-position: 0 0, 20px 20px;
+      display: flex;
+      justify-content: center;
       box-sizing: border-box;
     }
 
-    /* 全体のカード */
-    .oshino-wrapper {
-      max-width: 780px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.95);
+    .app-wrapper {
+      background-color: rgba(255,255,255,0.95);
       border-radius: 20px;
-      box-shadow: 0 0 18px rgba(90, 150, 200, 0.25);
-      overflow: hidden;
-      border: 1px solid rgba(160, 210, 230, 0.7);
-    }
-
-    /* レース風ヘッダー */
-    .oshino-header {
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 0 4px #c8f2f2, 0 8px 20px rgba(0,80,80,0.2);
+      max-width: 720px;
+      width: 100%;
+      padding: 24px 20px 28px;
+      box-sizing: border-box;
       position: relative;
-      padding: 24px 16px 16px;
-      text-align: center;
-      background: linear-gradient(to bottom, #e1f4ff, #f5fbff);
     }
 
-    .oshino-header::before {
+    .app-wrapper::before,
+    .app-wrapper::after {
       content: "";
       position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -10px;
-      height: 20px;
-      background-image:
-        radial-gradient(circle at 10px 10px, #ffffff 8px, transparent 9px),
-        radial-gradient(circle at 30px 10px, #ffffff 8px, transparent 9px);
-      background-size: 40px 20px;
+      left: 20px;
+      right: 20px;
+      height: 8px;
+      background-image: radial-gradient(circle, #ffffff 2px, rgba(0,0,0,0) 2px);
+      background-size: 12px 8px;
       background-repeat: repeat-x;
-      opacity: 0.95;
+      opacity: 0.8;
+    }
+    .app-wrapper::before { top: 10px; }
+    .app-wrapper::after { bottom: 10px; }
+
+    h1 {
+      text-align: center;
+      margin: 10px 0 24px;
+      color: #008b8b;
     }
 
-    .oshino-title {
-      margin: 0;
-      font-size: 2.4rem;
-      letter-spacing: 0.08em;
-      color: #1e4e63;
+    .title-ja {
+      font-family: 'Mochiy Pop One', 'M PLUS Rounded 1c', sans-serif;
+      font-size: 2.1rem;
+      margin-right: 4px;
     }
 
-    .oshino-title span.oshino {
-      font-weight: 700;
+    .title-en {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3.4rem;
+      letter-spacing: 1px;
     }
 
-    .oshino-title span.r-letter {
-      font-family: "Great Vibes", "Segoe Script", cursive;
-      font-size: 2.7rem;
-      margin-left: 0.1em;
-    }
-
-    .oshino-subtitle {
-      margin: 6px 0 0;
-      font-size: 0.9rem;
-      color: #5f8ba0;
-    }
-
-    /* 中身エリア */
-    .oshino-body {
-      padding: 24px 22px 26px;
-    }
-
-    .oshino-section {
-      margin-bottom: 20px;
-    }
-
-    .oshino-label {
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-size: 1rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #26566b;
-    }
-
-    .oshino-label::before {
-      content: "◆";
-      font-size: 0.8rem;
-      color: #4a9bc0;
+    .input-area {
+      background-color: #e0f7f7;
+      padding: 1em;
+      border-radius: 14px;
+      margin-bottom: 1em;
+      border: 2px solid #b3ecec;
     }
 
     textarea {
       width: 100%;
-      min-height: 120px;
-      font-size: 1rem;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid #b6d8ea;
+      height: 120px;
+      border: 2px solid #00bfbf;
+      border-radius: 10px;
+      padding: 0.5em;
+      font-size: 0.95em;
+      font-family: 'Courier New', monospace;
       background-color: #ffffff;
       box-sizing: border-box;
-      resize: vertical;
-      color: #23424f;
-      outline: none;
-      box-shadow: inset 0 0 0 1px rgba(220, 240, 250, 0.7);
-    }
-
-    textarea:focus {
-      border-color: #64a9cc;
-      box-shadow:
-        inset 0 0 0 1px rgba(190, 230, 250, 0.9),
-        0 0 0 3px rgba(120, 190, 230, 0.35);
-    }
-
-    .oshino-button-row {
-      margin-top: 12px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
     }
 
     button {
-      padding: 10px 26px;
-      font-size: 0.98rem;
-      border-radius: 999px;
+      background-color: #00bfbf;
+      color: white;
       border: none;
+      padding: 0.6em 1.4em;
+      border-radius: 999px;
+      font-size: 0.95em;
       cursor: pointer;
-      background: linear-gradient(135deg, #8fd0f2, #5fb1da);
-      color: #ffffff;
-      font-weight: 700;
-      box-shadow: 0 3px 6px rgba(60, 140, 180, 0.45);
-      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+      transition: background-color 0.25s, transform 0.1s, box-shadow 0.1s;
+      box-shadow: 0 3px 0 #008080;
     }
 
     button:hover {
-      filter: brightness(1.05);
-      box-shadow: 0 4px 8px rgba(60, 140, 180, 0.5);
-      transform: translateY(-1px);
-    }
-
-    button:active {
+      background-color: #00a0a0;
       transform: translateY(1px);
-      box-shadow: 0 1px 3px rgba(60, 140, 180, 0.4);
+      box-shadow: 0 2px 0 #006666;
     }
 
-    /* 結果エリア */
-    #output {
-      margin-top: 10px;
-      padding: 12px 14px;
-      background: #f6fbff;
+    .result-area {
+      background-color: #ffffff;
+      padding: 1em;
       border-radius: 14px;
-      border: 1px solid #c5e0f0;
+      border: 2px solid #b3ecec;
+      margin-bottom: 1.4em;
+    }
+
+    .result-area h2 {
+      margin: 0 0 0.4em;
+      font-size: 1rem;
+      color: #007f7f;
+    }
+
+    #result {
       white-space: pre-wrap;
-      min-height: 60px;
-      box-sizing: border-box;
+      margin-top: 0.3em;
+      color: #003f3f;
       font-size: 0.95rem;
-      color: #23424f;
+      min-height: 1.4em;
     }
 
-    /* グラフエリア */
-    .graph-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .graph-icon {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      background: linear-gradient(
-        to right,
-        #6c8bd8 0%,
-        #6c8bd8 25%,
-        #6dc7b2 25%,
-        #6dc7b2 50%,
-        #f3d36b 50%,
-        #f3d36b 75%,
-        #e98aa6 75%,
-        #e98aa6 100%
-      );
-    }
-
-    .graph-box {
-      padding: 10px;
-      border-radius: 14px;
-      border: 1px solid #c5e0f0;
-      background: #ffffff;
+    .plot-area {
+      margin-top: 1.4em;
+      background-color: #ffffff;
+      border-radius: 18px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 4px #dff7f7, 0 6px 16px rgba(0,80,80,0.15);
+      padding: 16px;
       text-align: center;
-      min-height: 60px;
     }
 
-    #plot {
+    .plot-area h2 {
+      margin: 0 0 0.6em;
+      font-size: 1.1rem;
+      color: #007f7f;
+      font-family: 'Mochiy Pop One', sans-serif;
+    }
+
+    canvas {
       max-width: 100%;
-      border-radius: 12px;
-      border: 1px solid #b6d8ea;
-      box-shadow: 0 0 8px rgba(120, 180, 210, 0.3);
+      border-radius: 10px;
+      border: 2px solid #c8f2f2;
+      background: white;
     }
-
-    .graph-placeholder {
-      font-size: 0.9rem;
-      color: #7aa0b0;
-    }
-
-    /* 小さめ画面対応 */
-    @media (max-width: 600px) {
-      body {
-        padding: 16px 8px;
-      }
-      .oshino-body {
-        padding: 18px 14px 20px;
-      }
-      .oshino-title {
-        font-size: 2.0rem;
-      }
-    }
-
-    /* タイトルR用フォント（あれば） */
-    @import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
   </style>
 </head>
 
 <body>
-  <div class="oshino-wrapper">
-    <!-- レース風ヘッダー＋タイトル -->
-    <header class="oshino-header">
-      <h1 class="oshino-title">
-        <span class="oshino">おしの</span><span class="r-letter">R</span>
-      </h1>
-      <p class="oshino-subtitle">水色クラロリな R 実行ひろば</p>
-    </header>
+  <div class="app-wrapper">
+    <h1><span class="title-ja">おしの</span><span class="title-en">R</span></h1>
 
-    <!-- 本体部分 -->
-    <main class="oshino-body">
-      <!-- Rコード入力 -->
-      <section class="oshino-section">
-        <div class="oshino-label">Rコード入力</div>
-        <textarea id="rcode">plot(1:10)</textarea>
-        <div class="oshino-button-row">
-          <button id="runBtn">Rコードを実行</button>
-        </div>
-      </section>
+    <div class="input-area">
+      <label for="rcode">Rコード入力</label>
+      <textarea id="rcode" placeholder="例：&#10;plot(1:10)"></textarea>
+      <button id="runBtn">Rコードを実行</button>
+    </div>
 
-      <!-- 結果 -->
-      <section class="oshino-section">
-        <div class="oshino-label">結果</div>
-        <div id="output">WebR を読み込み中です…</div>
-      </section>
+    <div class="result-area">
+      <h2>結果</h2>
+      <div id="result">ここに結果が表示されます</div>
+    </div>
 
-      <!-- グラフ表示 -->
-      <section class="oshino-section">
-        <div class="graph-header">
-          <div class="graph-icon"></div>
-          <div class="oshino-label" style="margin-bottom: 0;">おしのR グラフ</div>
-        </div>
-        <div class="graph-box">
-          <img id="plot" alt="Rグラフ出力画像" />
-          <div id="graphPlaceholder" class="graph-placeholder">
-            ここにグラフが表示されます
-          </div>
-        </div>
-      </section>
-    </main>
+    <div class="plot-area">
+      <h2>📊 おしのR グラフ</h2>
+      <canvas id="webr-canvas" width="1008" height="1008"></canvas>
+    </div>
   </div>
 
-  <!-- WebR 読み込み＆実行ロジック -->
   <script type="module">
     import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
 
-    const output = document.getElementById("output");
-    const rcode = document.getElementById("rcode");
-    const runBtn = document.getElementById("runBtn");
-    const plotImg = document.getElementById("plot");
-    const graphPlaceholder = document.getElementById("graphPlaceholder");
-
-    // WebR 初期化
     const webR = new WebR();
-    await webR.init();
-    output.textContent = "WebR の準備ができました。Rコードを入力して実行してみてください。";
+    const resultArea = document.getElementById("result");
+    const runBtn = document.getElementById("runBtn");
+    const canvas = document.getElementById("webr-canvas");
 
-    runBtn.onclick = async () => {
-      output.textContent = "実行中…";
-      graphPlaceholder.style.display = "block";
-      plotImg.src = "";
+    resultArea.textContent = "WebR を読み込み中です…";
+
+    await webR.init();
+    webR.setCanvas(canvas);
+
+    resultArea.textContent = "ここに結果が表示されます";
+
+    runBtn.addEventListener("click", async () => {
+      const code = document.getElementById("rcode").value.trim();
+
+      if (!code) {
+        resultArea.textContent = "Rコードが入力されていません。";
+        return;
+      }
+
+      resultArea.textContent = "実行中です…";
 
       try {
-        // グラフ画像を毎回上書きする
-        const code = `
-          png("plot.png")
-          ${rcode.value}
-          dev.off()
-        `;
+        const rResult = await webR.evalR(code);
 
-        const result = await webR.evalR(code);
-        const text = await result.toConsole();
-        output.textContent = text || "R からのメッセージはありません。";
-
-        // 仮想ファイルから PNG を取得して表示
-        const file = await webR.FS.readFile("plot.png");
-        const blob = new Blob([file.buffer], { type: "image/png" });
-        const url = URL.createObjectURL(blob);
-        plotImg.src = url;
-        graphPlaceholder.style.display = "none";
-      } catch (e) {
-        output.textContent = "エラー: " + e.message;
+        const jsResult = await rResult.toJs();
+        if (jsResult && Array.isArray(jsResult.values) && jsResult.values.length > 0) {
+          resultArea.textContent = jsResult.values.join(", ");
+        } else {
+          const consoleText = await rResult.toConsole();
+          resultArea.textContent = consoleText || "Rからの出力はありませんでした。";
+        }
+      } catch (error) {
+        resultArea.textContent = "エラーが発生しました: " + error.message;
       }
-    };
+    });
   </script>
 </body>
 </html>
