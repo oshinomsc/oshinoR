@@ -1,108 +1,323 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>おしのR</title>
+
+  <!-- ふんわり水色クラロリ系スタイル -->
   <style>
+    /* 背景：水色ギンガム風 */
     body {
-      font-family: "Rounded Mplus 1c", "Hiragino Maru Gothic ProN", sans-serif;
-      background: #faf7fb;
-      padding: 20px;
+      margin: 0;
+      padding: 30px 10px;
+      font-family: "Rounded Mplus 1c", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+      background-image:
+        linear-gradient(90deg, rgba(173, 216, 230, 0.4) 50%, transparent 50%),
+        linear-gradient(rgba(173, 216, 230, 0.4) 50%, transparent 50%);
+      background-size: 40px 40px;
+      background-color: #f5fbff;
+      color: #26566b;
+      box-sizing: border-box;
     }
 
-    h1 {
-      font-size: 2rem;
+    /* 全体のカード */
+    .oshino-wrapper {
+      max-width: 780px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 0 18px rgba(90, 150, 200, 0.25);
+      overflow: hidden;
+      border: 1px solid rgba(160, 210, 230, 0.7);
+    }
+
+    /* レース風ヘッダー */
+    .oshino-header {
+      position: relative;
+      padding: 24px 16px 16px;
       text-align: center;
+      background: linear-gradient(to bottom, #e1f4ff, #f5fbff);
+    }
+
+    .oshino-header::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -10px;
+      height: 20px;
+      background-image:
+        radial-gradient(circle at 10px 10px, #ffffff 8px, transparent 9px),
+        radial-gradient(circle at 30px 10px, #ffffff 8px, transparent 9px);
+      background-size: 40px 20px;
+      background-repeat: repeat-x;
+      opacity: 0.95;
+    }
+
+    .oshino-title {
+      margin: 0;
+      font-size: 2.4rem;
+      letter-spacing: 0.08em;
+      color: #1e4e63;
+    }
+
+    .oshino-title span.oshino {
+      font-weight: 700;
+    }
+
+    .oshino-title span.r-letter {
+      font-family: "Great Vibes", "Segoe Script", cursive;
+      font-size: 2.7rem;
+      margin-left: 0.1em;
+    }
+
+    .oshino-subtitle {
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: #5f8ba0;
+    }
+
+    /* 中身エリア */
+    .oshino-body {
+      padding: 24px 22px 26px;
+    }
+
+    .oshino-section {
       margin-bottom: 20px;
+    }
+
+    .oshino-label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #26566b;
+    }
+
+    .oshino-label::before {
+      content: "◆";
+      font-size: 0.8rem;
+      color: #4a9bc0;
     }
 
     textarea {
       width: 100%;
-      height: 150px;
+      min-height: 120px;
       font-size: 1rem;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid #b6d8ea;
+      background-color: #ffffff;
+      box-sizing: border-box;
+      resize: vertical;
+      color: #23424f;
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(220, 240, 250, 0.7);
+    }
+
+    textarea:focus {
+      border-color: #64a9cc;
+      box-shadow:
+        inset 0 0 0 1px rgba(190, 230, 250, 0.9),
+        0 0 0 3px rgba(120, 190, 230, 0.35);
+    }
+
+    .oshino-button-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 1rem;
+      padding: 10px 26px;
+      font-size: 0.98rem;
+      border-radius: 999px;
       border: none;
-      border-radius: 8px;
-      background-color: #e8c6ff;
       cursor: pointer;
+      background: linear-gradient(135deg, #8fd0f2, #5fb1da);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 3px 6px rgba(60, 140, 180, 0.45);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
     }
 
     button:hover {
-      background-color: #d7b0ff;
+      filter: brightness(1.05);
+      box-shadow: 0 4px 8px rgba(60, 140, 180, 0.5);
+      transform: translateY(-1px);
     }
 
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 3px rgba(60, 140, 180, 0.4);
+    }
+
+    /* 結果エリア */
     #output {
-      margin-top: 20px;
-      padding: 15px;
-      background: white;
-      border-radius: 8px;
-      border: 1px solid #ddd;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #f6fbff;
+      border-radius: 14px;
+      border: 1px solid #c5e0f0;
       white-space: pre-wrap;
+      min-height: 60px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+      color: #23424f;
+    }
+
+    /* グラフエリア */
+    .graph-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .graph-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(
+        to right,
+        #6c8bd8 0%,
+        #6c8bd8 25%,
+        #6dc7b2 25%,
+        #6dc7b2 50%,
+        #f3d36b 50%,
+        #f3d36b 75%,
+        #e98aa6 75%,
+        #e98aa6 100%
+      );
+    }
+
+    .graph-box {
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid #c5e0f0;
+      background: #ffffff;
+      text-align: center;
+      min-height: 60px;
     }
 
     #plot {
-      margin-top: 20px;
       max-width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 12px;
+      border: 1px solid #b6d8ea;
+      box-shadow: 0 0 8px rgba(120, 180, 210, 0.3);
     }
-  </style>
 
+    .graph-placeholder {
+      font-size: 0.9rem;
+      color: #7aa0b0;
+    }
+
+    /* 小さめ画面対応 */
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 8px;
+      }
+      .oshino-body {
+        padding: 18px 14px 20px;
+      }
+      .oshino-title {
+        font-size: 2.0rem;
+      }
+    }
+
+    /* タイトルR用フォント（あれば） */
+    @import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
+  </style>
+</head>
+
+<body>
+  <div class="oshino-wrapper">
+    <!-- レース風ヘッダー＋タイトル -->
+    <header class="oshino-header">
+      <h1 class="oshino-title">
+        <span class="oshino">おしの</span><span class="r-letter">R</span>
+      </h1>
+      <p class="oshino-subtitle">水色クラロリな R 実行ひろば</p>
+    </header>
+
+    <!-- 本体部分 -->
+    <main class="oshino-body">
+      <!-- Rコード入力 -->
+      <section class="oshino-section">
+        <div class="oshino-label">Rコード入力</div>
+        <textarea id="rcode">plot(1:10)</textarea>
+        <div class="oshino-button-row">
+          <button id="runBtn">Rコードを実行</button>
+        </div>
+      </section>
+
+      <!-- 結果 -->
+      <section class="oshino-section">
+        <div class="oshino-label">結果</div>
+        <div id="output">WebR を読み込み中です…</div>
+      </section>
+
+      <!-- グラフ表示 -->
+      <section class="oshino-section">
+        <div class="graph-header">
+          <div class="graph-icon"></div>
+          <div class="oshino-label" style="margin-bottom: 0;">おしのR グラフ</div>
+        </div>
+        <div class="graph-box">
+          <img id="plot" alt="Rグラフ出力画像" />
+          <div id="graphPlaceholder" class="graph-placeholder">
+            ここにグラフが表示されます
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- WebR 読み込み＆実行ロジック -->
   <script type="module">
     import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
 
-    const webR = new WebR();
-    await webR.init();
-
-    const runBtn = document.getElementById("runBtn");
     const output = document.getElementById("output");
     const rcode = document.getElementById("rcode");
+    const runBtn = document.getElementById("runBtn");
     const plotImg = document.getElementById("plot");
+    const graphPlaceholder = document.getElementById("graphPlaceholder");
 
-    output.textContent = "WebR の準備ができました。";
+    // WebR 初期化
+    const webR = new WebR();
+    await webR.init();
+    output.textContent = "WebR の準備ができました。Rコードを入力して実行してみてください。";
 
     runBtn.onclick = async () => {
       output.textContent = "実行中…";
+      graphPlaceholder.style.display = "block";
       plotImg.src = "";
 
       try {
-        // Rコードを実行（画像生成）
+        // グラフ画像を毎回上書きする
         const code = `
           png("plot.png")
           ${rcode.value}
           dev.off()
         `;
+
         const result = await webR.evalR(code);
         const text = await result.toConsole();
-        output.textContent = text;
+        output.textContent = text || "R からのメッセージはありません。";
 
-        // 仮想ファイルから画像を取得
+        // 仮想ファイルから PNG を取得して表示
         const file = await webR.FS.readFile("plot.png");
         const blob = new Blob([file.buffer], { type: "image/png" });
         const url = URL.createObjectURL(blob);
         plotImg.src = url;
+        graphPlaceholder.style.display = "none";
       } catch (e) {
         output.textContent = "エラー: " + e.message;
       }
     };
   </script>
-</head>
-
-<body>
-  <h1>📊 おしのR</h1>
-  <p>Rコードを入力して「実行」を押してください。</p>
-  <textarea id="rcode">plot(1:10)</textarea>
-  <br>
-  <button id="runBtn">Rコードを実行</button>
-  <div id="output">WebR を読み込み中です…</div>
-  <img id="plot" alt="Rグラフ出力画像">
 </body>
 </html>
