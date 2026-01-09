@@ -47,6 +47,13 @@
       border: 1px solid #ddd;
       white-space: pre-wrap;
     }
+
+    #plot {
+      margin-top: 20px;
+      max-width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
   </style>
 
   <script type="module">
@@ -58,16 +65,30 @@
     const runBtn = document.getElementById("runBtn");
     const output = document.getElementById("output");
     const rcode = document.getElementById("rcode");
+    const plotImg = document.getElementById("plot");
 
     output.textContent = "WebR の準備ができました。";
 
     runBtn.onclick = async () => {
       output.textContent = "実行中…";
+      plotImg.src = "";
 
       try {
-        const result = await webR.evalR(rcode.value);
+        // Rコードを実行（画像生成）
+        const code = `
+          png("plot.png")
+          ${rcode.value}
+          dev.off()
+        `;
+        const result = await webR.evalR(code);
         const text = await result.toConsole();
         output.textContent = text;
+
+        // 仮想ファイルから画像を取得
+        const file = await webR.FS.readFile("plot.png");
+        const blob = new Blob([file.buffer], { type: "image/png" });
+        const url = URL.createObjectURL(blob);
+        plotImg.src = url;
       } catch (e) {
         output.textContent = "エラー: " + e.message;
       }
@@ -78,9 +99,10 @@
 <body>
   <h1>📊 おしのR</h1>
   <p>Rコードを入力して「実行」を押してください。</p>
-  <textarea id="rcode">1:10</textarea>
+  <textarea id="rcode">plot(1:10)</textarea>
   <br>
-  <button id="runBtn">実行</button>
+  <button id="runBtn">Rコードを実行</button>
   <div id="output">WebR を読み込み中です…</div>
+  <img id="plot" alt="Rグラフ出力画像">
 </body>
 </html>
