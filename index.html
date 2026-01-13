@@ -113,7 +113,8 @@ plot(1:10)"></textarea>
   </div>
 
   <script type="module">
-    import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
+    // ★ 安定バージョン 0.2.0 を使用
+    import { WebR } from "https://webr.r-wasm.org/0.2.0/webr.mjs";
 
     const webR = new WebR();
     const resultArea = document.getElementById("result");
@@ -125,7 +126,7 @@ plot(1:10)"></textarea>
         resultArea.textContent = "WebR を初期化しています…";
         await webR.init();
 
-        // グラフィックスデバイスを canvas に接続
+        // ★ 0.2.0 では graphics.setDevice が確実に存在
         await webR.graphics.setDevice({ canvas });
 
         resultArea.textContent = "ここに結果が表示されます";
@@ -150,7 +151,9 @@ plot(1:10)"></textarea>
 
       try {
         const rResult = await webR.evalR(code);
-        await webR.flushGraphics(); // ← 描画を canvas に反映
+
+        // ★ 描画を確実に反映
+        await webR.flushGraphics();
 
         const jsResult = await rResult.toJs();
 
