@@ -113,18 +113,26 @@ plot(1:10)"></textarea>
   </div>
 
   <script type="module">
-    import { WebR } from "https://webr.r-wasm.org/0.2.0/webr.mjs";
+    import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
 
     const webR = new WebR();
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
     const canvas = document.getElementById("webr-canvas");
+    const ctx = canvas.getContext("2d");
 
     async function initWebR() {
       try {
         resultArea.textContent = "WebR を初期化しています…";
         await webR.init();
-        await webR.graphics.setDevice({ canvas });
+
+        // ★ 最新版の描画イベントを購読
+        webR.canvas.subscribe(async (imageData) => {
+          const bitmap = await createImageBitmap(imageData);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(bitmap, 0, 0);
+        });
+
         resultArea.textContent = "ここに結果が表示されます";
         runBtn.disabled = false;
       } catch (e) {
@@ -146,7 +154,6 @@ plot(1:10)"></textarea>
 
       try {
         const rResult = await webR.evalR(code);
-        await webR.flushGraphics();
         const jsResult = await rResult.toJs();
 
         if (code.includes("plot(") || code.includes("hist(") || code.includes("barplot(")) {
