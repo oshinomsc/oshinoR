@@ -100,6 +100,12 @@
       transform: translateY(1px);
       box-shadow: 0 2px 0 #006666;
     }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
     .result-area h2,
     .plot-area h2 {
       margin: 0 0 0.6em;
@@ -128,8 +134,8 @@
 
     <div class="input-area">
       <label for="rcode">Rコード入力</label>
-      <textarea id="rcode" placeholder="例：&#10;plot(1:10)"></textarea>
-      <button id="runBtn">Rコードを実行</button>
+      <textarea id="rcode" placeholder="例：&#10;1 + 1&#10;plot(1:10)"></textarea>
+      <button id="runBtn" disabled>Rコードを実行</button>
     </div>
 
     <div class="result-area">
@@ -150,10 +156,29 @@
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
 
-    await webR.init();
-    await webR.setGraphicsDevice("#webr-canvas");
+    async function initWebR() {
+      try {
+        resultArea.textContent = "WebR を初期化しています…";
 
-    resultArea.textContent = "ここに結果が表示されます";
+        await webR.init();
+
+        // グラフ描画デバイスを canvas に結びつけ
+        await webR.setGraphicsDevice("#webr-canvas");
+
+        resultArea.textContent = "ここに結果が表示されます";
+        runBtn.disabled = false;
+
+      } catch (e) {
+        console.error("WebR init error:", e);
+        resultArea.textContent =
+          "WebR の初期化に失敗しました。\n" +
+          "詳細: " + e + "\n\n" +
+          "（ネットワークやフィルタリングの可能性があります）";
+        runBtn.disabled = true;
+      }
+    }
+
+    initWebR();
 
     runBtn.addEventListener("click", async () => {
       const code = document.getElementById("rcode").value.trim();
@@ -178,7 +203,8 @@
         }
 
       } catch (err) {
-        resultArea.textContent = "エラー:\n" + err;
+        console.error("evalR error:", err);
+        resultArea.textContent = "Rコードの実行中にエラーが発生しました:\n" + err;
       }
     });
   </script>
