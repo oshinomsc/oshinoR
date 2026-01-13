@@ -126,7 +126,7 @@ plot(1:10)"></textarea>
         resultArea.textContent = "WebR を初期化しています…";
         await webR.init();
 
-        // ★ 最新版の描画イベントを購読
+        // 最新版 WebR の描画イベント購読
         webR.canvas.subscribe(async (imageData) => {
           const bitmap = await createImageBitmap(imageData);
           ctx.clearRect(0, 0, canvas.width, canvas.height);
