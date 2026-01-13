@@ -30,20 +30,6 @@
       box-sizing: border-box;
       position: relative;
     }
-    .app-wrapper::before,
-    .app-wrapper::after {
-      content: "";
-      position: absolute;
-      left: 20px;
-      right: 20px;
-      height: 8px;
-      background-image: radial-gradient(circle, #ffffff 2px, rgba(0,0,0,0) 2px);
-      background-size: 12px 8px;
-      background-repeat: repeat-x;
-      opacity: 0.8;
-    }
-    .app-wrapper::before { top: 10px; }
-    .app-wrapper::after { bottom: 10px; }
     h1 {
       text-align: center;
       margin: 10px 0 24px;
@@ -66,12 +52,6 @@
       border: 2px solid #b3ecec;
       margin-bottom: 1.4em;
     }
-    label {
-      font-weight: bold;
-      color: #007f7f;
-      display: block;
-      margin-bottom: 0.4em;
-    }
     textarea {
       width: 100%;
       height: 120px;
@@ -93,25 +73,6 @@
       font-size: 0.95em;
       cursor: pointer;
       box-shadow: 0 3px 0 #008080;
-      transition: background-color 0.25s, transform 0.1s, box-shadow 0.1s;
-    }
-    button:hover {
-      background-color: #00a0a0;
-      transform: translateY(1px);
-      box-shadow: 0 2px 0 #006666;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-      transform: none;
-    }
-    .result-area h2,
-    .plot-area h2 {
-      margin: 0 0 0.6em;
-      font-size: 1.1rem;
-      color: #007f7f;
-      font-family: 'Mochiy Pop One', sans-serif;
     }
     #result {
       white-space: pre-wrap;
@@ -161,20 +122,12 @@ plot(1:10)"></textarea>
     async function initWebR() {
       try {
         resultArea.textContent = "WebR を初期化しています…";
-
         await webR.init();
-
-        // setGraphicsDevice は廃止されたため削除済み
-
         resultArea.textContent = "ここに結果が表示されます";
         runBtn.disabled = false;
-
       } catch (e) {
-        console.error("WebR init error:", e);
         resultArea.textContent =
-          "WebR の初期化に失敗しました。\n" +
-          "詳細: " + e + "\n\n" +
-          "（ネットワークやフィルタリングの可能性があります）";
+          "WebR の初期化に失敗しました。\n詳細: " + e;
         runBtn.disabled = true;
       }
     }
@@ -183,7 +136,6 @@ plot(1:10)"></textarea>
 
     runBtn.addEventListener("click", async () => {
       const code = document.getElementById("rcode").value.trim();
-
       if (!code) {
         resultArea.textContent = "Rコードが入力されていません。";
         return;
@@ -195,6 +147,12 @@ plot(1:10)"></textarea>
         const rResult = await webR.evalR(code);
         const jsResult = await rResult.toJs();
 
+        // 描画系のコードなら結果欄に文字を出さない
+        if (code.includes("plot(") || code.includes("hist(") || code.includes("barplot(")) {
+          resultArea.textContent = "（グラフを描画しました）";
+          return;
+        }
+
         if (jsResult === null || jsResult === undefined) {
           resultArea.textContent = "（出力なし）";
         } else if (Array.isArray(jsResult.values)) {
@@ -204,7 +162,6 @@ plot(1:10)"></textarea>
         }
 
       } catch (err) {
-        console.error("evalR error:", err);
         resultArea.textContent = "Rコードの実行中にエラーが発生しました:\n" + err;
       }
     });
