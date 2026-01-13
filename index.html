@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>おしのR</title>
 
-  <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
   <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <style>
@@ -54,7 +53,6 @@
       letter-spacing: 1px;
     }
 
-    /* ★ 緑背景の入力ブロック（復元済み） */
     .input-area {
       background-color: #e0f7f7;
       padding: 1em;
@@ -125,22 +123,15 @@
   </div>
 
   <script type="module">
-    import { WebR, canvasDevice } from "https://webr.r-wasm.org/latest/webr.mjs";
+    import { WebR } from "https://webr.r-wasm.org/v0.2.1/webr.mjs";
 
-    const webR = new WebR({
-      baseUrl: "https://webr.r-wasm.org/latest/"
-    });
-
+    const webR = new WebR();
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
-    const canvas = document.getElementById("webr-canvas");
 
-    resultArea.textContent = "WebR を初期化中…";
+    resultArea.textContent = "WebR を読み込み中です…";
 
     await webR.init();
-
-    /* ★ グラフ描画デバイスを canvas に接続（最新API） */
-    canvasDevice(canvas);
 
     resultArea.textContent = "ここに結果が表示されます";
 
@@ -155,20 +146,11 @@
       resultArea.textContent = "実行中です…";
 
       try {
-        /* ★ 最新 WebR では captureStreams: true が必須 */
-        const rResult = await webR.evalR(code, { captureStreams: true });
+        const rResult = await webR.evalR(code);
 
         let outputText = "";
-
-        /* ★ stdout は配列として返る（最新仕様） */
-        if (rResult.stdout && Array.isArray(rResult.stdout)) {
-          for (const chunk of rResult.stdout) {
-            if (typeof chunk === "string") {
-              outputText += chunk;
-            } else if (chunk && typeof chunk.data === "string") {
-              outputText += chunk.data;
-            }
-          }
+        for await (const chunk of rResult.streamStdout()) {
+          outputText += chunk;
         }
 
         resultArea.textContent =
