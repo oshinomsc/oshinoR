@@ -134,7 +134,9 @@
 
     <div class="input-area">
       <label for="rcode">Rコード入力</label>
-      <textarea id="rcode" placeholder="例：&#10;1 + 1&#10;plot(1:10)"></textarea>
+      <textarea id="rcode" placeholder="例：
+canvas()
+plot(1:10)"></textarea>
       <button id="runBtn" disabled>Rコードを実行</button>
     </div>
 
@@ -162,8 +164,7 @@
 
         await webR.init();
 
-        // グラフ描画デバイスを canvas に結びつけ
-        await webR.setGraphicsDevice("#webr-canvas");
+        // setGraphicsDevice は廃止されたため削除済み
 
         resultArea.textContent = "ここに結果が表示されます";
         runBtn.disabled = false;
