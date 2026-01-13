@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>おしのR</title>
 
-  <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
   <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <style>
@@ -36,21 +35,6 @@
       position: relative;
     }
 
-    .app-wrapper::before,
-    .app-wrapper::after {
-      content: "";
-      position: absolute;
-      left: 20px;
-      right: 20px;
-      height: 8px;
-      background-image: radial-gradient(circle, #ffffff 2px, rgba(0,0,0,0) 2px);
-      background-size: 12px 8px;
-      background-repeat: repeat-x;
-      opacity: 0.8;
-    }
-    .app-wrapper::before { top: 10px; }
-    .app-wrapper::after { bottom: 10px; }
-
     h1 {
       text-align: center;
       margin: 10px 0 24px;
@@ -67,14 +51,6 @@
       font-family: 'Great Vibes', cursive;
       font-size: 3.4rem;
       letter-spacing: 1px;
-    }
-
-    .input-area {
-      background-color: #e0f7f7;
-      padding: 1em;
-      border-radius: 14px;
-      margin-bottom: 1em;
-      border: 2px solid #b3ecec;
     }
 
     textarea {
@@ -97,53 +73,15 @@
       border-radius: 999px;
       font-size: 0.95em;
       cursor: pointer;
-      transition: background-color 0.25s, transform 0.1s, box-shadow 0.1s;
       box-shadow: 0 3px 0 #008080;
     }
 
-    button:hover {
-      background-color: #00a0a0;
-      transform: translateY(1px);
-      box-shadow: 0 2px 0 #006666;
-    }
-
-    .result-area {
+    .result-area, .plot-area {
       background-color: #ffffff;
       padding: 1em;
       border-radius: 14px;
       border: 2px solid #b3ecec;
       margin-bottom: 1.4em;
-    }
-
-    .result-area h2 {
-      margin: 0 0 0.4em;
-      font-size: 1rem;
-      color: #007f7f;
-    }
-
-    #result {
-      white-space: pre-wrap;
-      margin-top: 0.3em;
-      color: #003f3f;
-      font-size: 0.95rem;
-      min-height: 1.4em;
-    }
-
-    .plot-area {
-      margin-top: 1.4em;
-      background-color: #ffffff;
-      border-radius: 18px;
-      border: 3px solid #ffffff;
-      box-shadow: 0 0 0 4px #dff7f7, 0 6px 16px rgba(0,80,80,0.15);
-      padding: 16px;
-      text-align: center;
-    }
-
-    .plot-area h2 {
-      margin: 0 0 0.6em;
-      font-size: 1.1rem;
-      color: #007f7f;
-      font-family: 'Mochiy Pop One', sans-serif;
     }
 
     canvas {
@@ -161,7 +99,7 @@
 
     <div class="input-area">
       <label for="rcode">Rコード入力</label>
-      <textarea id="rcode" placeholder="例：&#10;1+1&#10;mean(1:10)"></textarea>
+      <textarea id="rcode" placeholder="例：&#10;1+1&#10;plot(1:10)"></textarea>
       <button id="runBtn">Rコードを実行</button>
     </div>
 
@@ -172,20 +110,27 @@
 
     <div class="plot-area">
       <h2>📊 おしのR グラフ</h2>
-      <canvas id="webr-canvas" width="1008" height="1008"></canvas>
+      <canvas id="webr-canvas" width="800" height="800"></canvas>
     </div>
   </div>
 
   <script type="module">
-    import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
+    import { WebR, canvasDevice } from "https://webr.r-wasm.org/latest/webr.mjs";
 
-    const webR = new WebR();
+    const webR = new WebR({
+      baseUrl: "https://webr.r-wasm.org/latest/"
+    });
+
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
+    const canvas = document.getElementById("webr-canvas");
 
-    resultArea.textContent = "WebR を読み込み中です…";
+    resultArea.textContent = "WebR を初期化中…";
 
     await webR.init();
+
+    // R の描画デバイスを canvas に接続
+    canvasDevice(canvas);
 
     resultArea.textContent = "ここに結果が表示されます";
 
@@ -202,14 +147,15 @@
       try {
         const rResult = await webR.evalR(code);
 
-        let outputText = "";
-        for await (const chunk of rResult.streamStdout()) {
-          outputText += chunk;
+        let output = "";
+        for await (const chunk of rResult.stdout()) {
+          output += chunk;
         }
 
-        resultArea.textContent = outputText || "Rからの出力はありませんでした。";
+        resultArea.textContent = output || "Rからの出力はありませんでした。";
+
       } catch (error) {
-        resultArea.textContent = "エラーが発生しました: " + error.message;
+        resultArea.textContent = "エラー: " + error.message;
       }
     });
   </script>
