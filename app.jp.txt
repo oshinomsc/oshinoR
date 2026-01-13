@@ -1,0 +1,50 @@
+import { WebR } from "./webr.mjs";
+
+// webR を起動
+const webR = new WebR();
+await webR.init();
+
+// CodeMirror エディタをセットアップ
+const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+  mode: "r",
+  lineNumbers: true,
+  theme: "default"
+});
+
+// 初期コード（生徒がすぐ試せるように）
+editor.setValue(`x <- rnorm(100)
+mean(x)
+plot(x)`);
+
+// コンソール出力
+const consoleOutput = document.getElementById("console-output");
+
+// 実行ボタン
+document.getElementById("run-btn").addEventListener("click", async () => {
+  consoleOutput.textContent = "Running...\n";
+
+  // Rコードを取得
+  const code = editor.getValue();
+
+  // Rにコードを送って実行
+  const result = await webR.evalR(code, { captureStreams: true });
+
+  // 標準出力を表示
+  const output = await result.toJs();
+  consoleOutput.textContent = output.output + "\n";
+
+  // プロットがある場合は描画
+  const plotCanvas = document.getElementById("plot-canvas");
+  const ctx = plotCanvas.getContext("2d");
+
+  // webR のプロットは PNG として取得できる
+  const plot = await webR.getPlot();
+  if (plot) {
+    const img = new Image();
+    img.src = URL.createObjectURL(plot);
+    img.onload = () => {
+      ctx.clearRect(0, 0, plotCanvas.width, plotCanvas.height);
+      ctx.drawImage(img, 0, 0, plotCanvas.width, plotCanvas.height);
+    };
+  }
+});
