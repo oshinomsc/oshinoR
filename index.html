@@ -95,7 +95,7 @@
 
     <div class="input-area">
       <label for="rcode">Rコード入力</label>
-      <textarea id="rcode" placeholder="例：&#10;1+1&#10;mean(1:10)">1+1</textarea>
+      <textarea id="rcode" placeholder="例：&#10;1+1&#10;plot(1:10)">1+1</textarea>
       <button id="runBtn">Rコードを実行</button>
     </div>
 
@@ -116,9 +116,11 @@
     const webR = new WebR();
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
+    const canvas = document.getElementById("webr-canvas");
 
     resultArea.textContent = "WebR を読み込み中です…";
 
+    // --- WebR 初期化 ---
     try {
       await webR.init();
       resultArea.textContent = "ここに結果が表示されます";
@@ -127,6 +129,7 @@
       console.error("WebR init error:", error);
     }
 
+    // --- Rコード実行 ---
     runBtn.addEventListener("click", async () => {
       const code = document.getElementById("rcode").value.trim();
 
@@ -138,18 +141,22 @@
       resultArea.textContent = "実行中です…";
 
       try {
-        const rResult = await webR.evalR(code);
+        // ★ グラフ描画用デバイスを canvas に接続
+        const device = await webR.canvasDevice(canvas);
 
-        let outputText = "";
-        for await (const chunk of rResult.streamStdout()) {
-          outputText += chunk;
-        }
+        // ★ Rコードを実行（stdout 取得）
+        const result = await webR.captureR(code);
 
+        // ★ 結果表示
         resultArea.textContent =
-          outputText.trim() !== "" ? outputText : "Rからの出力はありませんでした。";
+          result.output.trim() || "Rからの出力はありませんでした。";
+
+        // ★ グラフ描画を反映
+        await device.flush();
 
       } catch (error) {
         resultArea.textContent = "エラー: " + error.message;
+        console.error("R実行エラー:", error);
       }
     });
   </script>
