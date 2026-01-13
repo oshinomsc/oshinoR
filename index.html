@@ -113,7 +113,6 @@ plot(1:10)"></textarea>
   </div>
 
   <script type="module">
-    // ★ 安定バージョン 0.2.0 を使用
     import { WebR } from "https://webr.r-wasm.org/0.2.0/webr.mjs";
 
     const webR = new WebR();
@@ -125,15 +124,11 @@ plot(1:10)"></textarea>
       try {
         resultArea.textContent = "WebR を初期化しています…";
         await webR.init();
-
-        // ★ 0.2.0 では graphics.setDevice が確実に存在
         await webR.graphics.setDevice({ canvas });
-
         resultArea.textContent = "ここに結果が表示されます";
         runBtn.disabled = false;
       } catch (e) {
-        resultArea.textContent =
-          "WebR の初期化に失敗しました。\n詳細: " + e;
+        resultArea.textContent = "WebR の初期化に失敗しました。\n詳細: " + e;
         runBtn.disabled = true;
       }
     }
@@ -151,18 +146,12 @@ plot(1:10)"></textarea>
 
       try {
         const rResult = await webR.evalR(code);
-
-        // ★ 描画を確実に反映
         await webR.flushGraphics();
-
         const jsResult = await rResult.toJs();
 
         if (code.includes("plot(") || code.includes("hist(") || code.includes("barplot(")) {
           resultArea.textContent = "（グラフを描画しました）";
-          return;
-        }
-
-        if (jsResult === null || jsResult === undefined) {
+        } else if (jsResult === null || jsResult === undefined) {
           resultArea.textContent = "（出力なし）";
         } else if (Array.isArray(jsResult.values)) {
           resultArea.textContent = jsResult.values.join(", ");
