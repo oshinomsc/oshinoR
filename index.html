@@ -125,14 +125,6 @@ plot(1:10)"></textarea>
       try {
         resultArea.textContent = "WebR を初期化しています…";
         await webR.init();
-
-        // 最新版 WebR の描画イベント購読
-        webR.canvas.subscribe(async (imageData) => {
-          const bitmap = await createImageBitmap(imageData);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(bitmap, 0, 0);
-        });
-
         resultArea.textContent = "ここに結果が表示されます";
         runBtn.disabled = false;
       } catch (e) {
@@ -153,9 +145,25 @@ plot(1:10)"></textarea>
       resultArea.textContent = "実行中です…";
 
       try {
-        const rResult = await webR.evalR(code);
+        // --- PNG 出力方式で描画 ---
+        const wrappedCode = `
+          png("plot.png", width=1008, height=1008)
+          try({ ${code} })
+          dev.off()
+        `;
+
+        const rResult = await webR.evalR(wrappedCode);
         const jsResult = await rResult.toJs();
 
+        // PNG を読み込んで canvas に描画
+        const file = await webR.FS.readFile("plot.png");
+        const blob = new Blob([file], { type: "image/png" });
+        const bitmap = await createImageBitmap(blob);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(bitmap, 0, 0);
+
+        // 結果欄の表示
         if (code.includes("plot(") || code.includes("hist(") || code.includes("barplot(")) {
           resultArea.textContent = "（グラフを描画しました）";
         } else if (jsResult === null || jsResult === undefined) {
