@@ -144,27 +144,44 @@ plot(1:10)"></textarea>
 
       resultArea.textContent = "実行中です…";
 
+      const hasPlot =
+        code.includes("plot(") ||
+        code.includes("hist(") ||
+        code.includes("barplot(") ||
+        code.includes("ggplot(");
+
+      const wrappedCode = hasPlot
+        ? `
+png("plot.png", width=1008, height=1008)
+try({ ${code} })
+dev.off()
+`
+        : code;
+
       try {
-        // --- PNG 出力方式で描画 ---
-        const wrappedCode = `
-          png("plot.png", width=1008, height=1008)
-          try({ ${code} })
-          dev.off()
-        `;
-
         const rResult = await webR.evalR(wrappedCode);
-        const jsResult = await rResult.toJs();
 
-        // PNG を読み込んで canvas に描画
-        const file = await webR.FS.readFile("plot.png");
-        const blob = new Blob([file], { type: "image/png" });
-        const bitmap = await createImageBitmap(blob);
+        let jsResult = null;
+        try {
+          jsResult = await rResult.toJs();
+        } catch (e) {}
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(bitmap, 0, 0);
+        let drewPlot = false;
+        if (hasPlot) {
+          try {
+            const fileData = await webR.FS.readFile("plot.png");
+            const blob = new Blob([fileData], { type: "image/png" });
+            const bitmap = await createImageBitmap(blob);
 
-        // 結果欄の表示
-        if (code.includes("plot(") || code.includes("hist(") || code.includes("barplot(")) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(bitmap, 0, 0);
+            drewPlot = true;
+          } catch (e) {
+            console.warn("プロット画像の読み込みに失敗しました:", e);
+          }
+        }
+
+        if (drewPlot) {
           resultArea.textContent = "（グラフを描画しました）";
         } else if (jsResult === null || jsResult === undefined) {
           resultArea.textContent = "（出力なし）";
