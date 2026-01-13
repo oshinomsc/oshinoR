@@ -125,7 +125,7 @@ plot(1:10)"></textarea>
         resultArea.textContent = "WebR を初期化しています…";
         await webR.init();
 
-        // グラフィックスデバイスを canvas に接続（最新版仕様）
+        // グラフィックスデバイスを canvas に接続
         await webR.graphics.setDevice({ canvas });
 
         resultArea.textContent = "ここに結果が表示されます";
@@ -150,9 +150,10 @@ plot(1:10)"></textarea>
 
       try {
         const rResult = await webR.evalR(code);
+        await webR.flushGraphics(); // ← 描画を canvas に反映
+
         const jsResult = await rResult.toJs();
 
-        // 描画系のコードなら結果欄に文字を出さない
         if (code.includes("plot(") || code.includes("hist(") || code.includes("barplot(")) {
           resultArea.textContent = "（グラフを描画しました）";
           return;
