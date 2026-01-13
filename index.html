@@ -144,7 +144,7 @@
 
     <div class="input-area">
       <label for="rcode">Rコード入力</label>
-      <textarea id="rcode" placeholder="例：&#10;webr::canvas()&#10;plot(1:10)&#10;dev.off()"></textarea>
+      <textarea id="rcode" placeholder="例：&#10;plot(1:10)"></textarea>
       <button id="runBtn">Rコードを実行</button>
     </div>
 
@@ -165,12 +165,14 @@
     const webR = new WebR();
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
-    const canvas = document.getElementById("webr-canvas");
 
     resultArea.textContent = "WebR を読み込み中です…";
 
+    // WebR 初期化
     await webR.init();
-    webR.setCanvas(canvas);
+
+    // ★ 最新 WebR で正しく動く描画設定
+    await webR.setGraphicsDevice("#webr-canvas");
 
     resultArea.textContent = "ここに結果が表示されます";
 
@@ -188,10 +190,12 @@
         const rResult = await webR.evalR(code);
         const jsResult = await rResult.toJs();
 
-        if (jsResult && Array.isArray(jsResult.values) && jsResult.values.length > 0) {
+        if (jsResult === null || jsResult === undefined) {
+          resultArea.textContent = "（出力なし）";
+        } else if (Array.isArray(jsResult.values)) {
           resultArea.textContent = jsResult.values.join(", ");
         } else {
-          resultArea.textContent = "（出力なし）";
+          resultArea.textContent = String(jsResult);
         }
 
       } catch (err) {
