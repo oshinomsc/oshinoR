@@ -6,13 +6,11 @@
 
   <!-- 丸文字（日本語）＋ カリグラフィ（英字） -->
   <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Great+Vibes&display=swap" rel="stylesheet">
-  <script src="https://webr.r-wasm.org/latest/webr.mjs" type="module"></script>
 
   <style>
     body {
       margin: 0;
       padding: 40px 10px;
-      color: #004f4f;
       font-family: 'M PLUS Rounded 1c', system-ui, sans-serif;
       background-color: #f0ffff;
       background-image:
@@ -59,7 +57,7 @@
     }
 
     .title-ja {
-      font-family: 'Mochiy Pop One', 'M PLUS Rounded 1c', sans-serif;
+      font-family: 'Mochiy Pop One', sans-serif;
       font-size: 2.1rem;
       margin-right: 4px;
     }
@@ -70,12 +68,19 @@
       letter-spacing: 1px;
     }
 
-    .input-area {
-      background-color: #e0f7f7;
+    .input-area, .result-area, .plot-area {
+      background-color: #ffffff;
       padding: 1em;
       border-radius: 14px;
-      margin-bottom: 1em;
       border: 2px solid #b3ecec;
+      margin-bottom: 1.4em;
+    }
+
+    label {
+      font-weight: bold;
+      color: #007f7f;
+      display: block;
+      margin-bottom: 0.4em;
     }
 
     textarea {
@@ -91,6 +96,7 @@
     }
 
     button {
+      margin-top: 0.8em;
       background-color: #00bfbf;
       color: white;
       border: none;
@@ -98,8 +104,8 @@
       border-radius: 999px;
       font-size: 0.95em;
       cursor: pointer;
-      transition: background-color 0.25s, transform 0.1s, box-shadow 0.1s;
       box-shadow: 0 3px 0 #008080;
+      transition: background-color 0.25s, transform 0.1s, box-shadow 0.1s;
     }
 
     button:hover {
@@ -108,43 +114,19 @@
       box-shadow: 0 2px 0 #006666;
     }
 
-    .result-area {
-      background-color: #ffffff;
-      padding: 1em;
-      border-radius: 14px;
-      border: 2px solid #b3ecec;
-      margin-bottom: 1.4em;
-    }
-
-    .result-area h2 {
-      margin: 0 0 0.4em;
-      font-size: 1rem;
-      color: #007f7f;
-    }
-
-    #result {
-      white-space: pre-wrap;
-      margin-top: 0.3em;
-      color: #003f3f;
-      font-size: 0.95rem;
-      min-height: 1.4em;
-    }
-
-    .plot-area {
-      margin-top: 1.4em;
-      background-color: #ffffff;
-      border-radius: 18px;
-      border: 3px solid #ffffff;
-      box-shadow: 0 0 0 4px #dff7f7, 0 6px 16px rgba(0,80,80,0.15);
-      padding: 16px;
-      text-align: center;
-    }
-
+    .result-area h2,
     .plot-area h2 {
       margin: 0 0 0.6em;
       font-size: 1.1rem;
       color: #007f7f;
       font-family: 'Mochiy Pop One', sans-serif;
+    }
+
+    #result {
+      white-space: pre-wrap;
+      color: #003f3f;
+      font-size: 0.95rem;
+      min-height: 1.4em;
     }
 
     canvas {
@@ -186,12 +168,15 @@
     const canvas = document.getElementById("webr-canvas");
 
     resultArea.textContent = "WebR を読み込み中です…";
+
     await webR.init();
-    webR.setCanvas(canvas); // ← これが描画の鍵です
+    webR.setCanvas(canvas);
+
     resultArea.textContent = "ここに結果が表示されます";
 
     runBtn.addEventListener("click", async () => {
       const code = document.getElementById("rcode").value.trim();
+
       if (!code) {
         resultArea.textContent = "Rコードが入力されていません。";
         return;
@@ -206,4 +191,13 @@
         if (jsResult && Array.isArray(jsResult.values) && jsResult.values.length > 0) {
           resultArea.textContent = jsResult.values.join(", ");
         } else {
-          resultArea.textContent =
+          resultArea.textContent = "（出力なし）";
+        }
+
+      } catch (err) {
+        resultArea.textContent = "エラー:\n" + err;
+      }
+    });
+  </script>
+</body>
+</html>
