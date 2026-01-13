@@ -150,7 +150,7 @@
 
     <div class="result-area">
       <h2>結果</h2>
-      <div id="result">ここに結果が表示されます</div>
+      <div id="result">WebR を読み込み中です…</div>
     </div>
 
     <div class="plot-area">
@@ -166,12 +166,10 @@
     const resultArea = document.getElementById("result");
     const runBtn = document.getElementById("runBtn");
 
-    resultArea.textContent = "WebR を読み込み中です…";
-
     // WebR 初期化
     await webR.init();
 
-    // ★ 最新 WebR で正しく動く描画設定
+    // ★ 最新 WebR の正しい描画設定
     await webR.setGraphicsDevice("#webr-canvas");
 
     resultArea.textContent = "ここに結果が表示されます";
